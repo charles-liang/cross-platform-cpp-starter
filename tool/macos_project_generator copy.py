@@ -34,9 +34,7 @@ class MacOSProjectGenerator(ProjectGenerator):
 
     def get_cmake_args(self, cmake_tool_chain_path: Path, macos_directory: Path, profile: str, arch: str):
         target_arch = 'MAC_ARM64' if arch == 'arm64' else 'MAC'
-        return ['-DPLATFORM=%s' % target_arch, '-DBUILD_DIR=%s' % str(macos_directory),
-                # '-SDK_VERSION', ''
-                '-DCMAKE_BUILD_TYPE=%s' % profile,
+        return ['-DPLATFORM=%s' % target_arch, '-DCMAKE_BUILD_TYPE=%s' % profile,'-DBUILD_DIR=%s' % str(macos_directory), 
                 '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-GXcode']
 
     def clone_project(self, macos_directory):

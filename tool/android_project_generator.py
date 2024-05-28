@@ -16,7 +16,7 @@ class AndroidProjectGenerator(ProjectGenerator):
     def __init__(self):
         self.sub_directory = 'android'
 
-    def generate(self, source_directory: Path, build_directory: Path, profile: str):
+    def generate(self, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
         android_directory = Path(build_directory, self.sub_directory)
         if not android_directory.exists():
 

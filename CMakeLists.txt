@@ -7,28 +7,16 @@ include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_ANDROID_STL_TYPE "c++_static")
 
-message(STATUS "TARGET_ARCHITECTURE = ${CMAKE_OSX_ARCHITECTURES}")
-
-# Check if the directory already exists
-if(APPLE AND NOT "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
-    Message(STATUS "CMAKE_OSX_ARCHITECTURES = ${CMAKE_OSX_ARCHITECTURES}")
-    list(APPEND ${CMAKE_ARGS} " -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES} ")
-endif()
-message(STATUS "CM")
-message(STATUS "CMAKE_ARGS: ${CMAKE_ARGS}")
-
 add_subdirectory(cmake)
+
 
 set_diagnostic_flags()
 hide_symbol()
 
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
-endif()
-
 set(PREFIX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/build)
 set(BINARY_DIR ${PREFIX_DIR}/build)
-set(INSTALL_DIR ${PREFIX_DIR}/install)
+
+include_directories(${PREFIX_DIR}/include)
 
 if("${PLATFORM}" STREQUAL "IOS")
     set(SOURCES ${SOURCES} ${PUBLIC_HEADER})
@@ -40,19 +28,14 @@ else()
     set(SOURCES ${SOURCES} src/main.cpp)
 endif()
 
-foreach(ARCH IN LISTS CMAKE_OSX_ARCHITECTURES)
-    include_directories(${PREFIX_DIR}/${ARCH}/include)
-    link_directories(${PREFIX_DIR}/${ARCH}/lib)
-endforeach()
+if(${ARCHS} STREQUAL "")
+    set(ARCHS "${CMAKE_HOST_SYSTEM_PROCESSOR}")
+endif()
 
-add_main_executable(${PROJECT_NAME} PLATFORM ${PLATFORM})
+MESSAGE(STATUS "ARCHS: ${ARCHS}")
 
-foreach(ARCH IN LISTS CMAKE_OSX_ARCHITECTURES)
-    add_main_executable(${PROJECT_NAME}_${ARCH} PLATFORM ${PLATFORM} PUBLIC_HEADER ${PUBLIC_HEADER} SOURCES ${SOURCES})
-    add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_${ARCH})
-endforeach()
+add_main_executable(${PROJECT_NAME} PLATFORM ${PLATFORM} PUBLIC_HEADER ${PUBLIC_HEADER} SOURCES ${SOURCES})
 
-# target_link_libraries(${PROJECT_NAME})
 if(NOT EMSCRIPTEN)
     add_external_project_if_missing(
         ${PROJECT_NAME}
@@ -60,17 +43,19 @@ if(NOT EMSCRIPTEN)
         "https://github.com/libsdl-org/SDL.git"
         "release-2.30.3"
         ${PREFIX_DIR}
+        ${BINARY_DIR}/${ARCHS}/SDL2
         "-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>"
     )
+    string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
+    set(ARCH_BUILD_DIR "${PREFIX_DIR}/build/${ARCHS}/SDL2")
+
     add_custom_command(
-        TARGET ${PROJECT_NAME}
+        TARGET SDL2
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ARCH_BUILD_DIR}/include-config-${CMAKE_BUILD_TYPE_LOWER}/SDL2/SDL_config.h" "${PREFIX_DIR}/${ARCH}/include/SDL2"
+        COMMAND ${CMAKE_COMMAND} -E copy "${ARCH_BUILD_DIR}/include-config-${CMAKE_BUILD_TYPE_LOWER}/SDL2/SDL_config.h" "${PREFIX_DIR}/include/SDL2"
     )
+
+    target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 endif()
 
 
-# Link the libraries to the targe
-foreach(ARCH IN LISTS CMAKE_OSX_ARCHITECTURES)
-    target_link_libraries(${PROJECT_NAME}_${ARCH} "${SDL2_${ARCH}_LIBRARIES}")
-endforeach()

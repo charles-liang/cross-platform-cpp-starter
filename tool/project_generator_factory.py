@@ -9,7 +9,7 @@ from unix_project_generator import UnixProjectGenerator
 
 class ProjectGeneratorFactory:
 
-    def generate(self, platform: str, source_directory: Path, build_directory: Path, profile: str):
+    def generate(self, platform: str, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
         if platform == 'android':
             project_generator = AndroidProjectGenerator()
         elif platform == 'ios':
@@ -22,6 +22,6 @@ class ProjectGeneratorFactory:
             project_generator = MacOSProjectGenerator()
         else:
             raise Exception('Unsupported platform %s' % platform)
-        project_generator.pre_generate(source_directory, build_directory, profile)
-        project_generator.generate(source_directory, build_directory, profile)
-        project_generator.post_generate(source_directory, build_directory, profile)
+        project_generator.pre_generate(source_directory, build_directory, profile, arch)
+        project_generator.generate(source_directory, build_directory, profile, arch)
+        project_generator.post_generate(source_directory, build_directory, profile, arch)

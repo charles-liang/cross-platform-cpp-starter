@@ -16,6 +16,7 @@ def parse_arguments():
     parser.add_argument('-profile', '--profile', default='Debug', type=str, help='Build profile')
     parser.add_argument('-platform', '--platform', default='osx', type=str,
                         help='Platform <android/ios/osx/linux/windows>')
+    parser.add_argument('-arch', '--arch', default=None, type=str, help='CPU Architecture <arm/arm64/x86/x86_64>')
     parser.add_argument('command', type=str, help='Command <build/clean>')
 
     return parser.parse_args()

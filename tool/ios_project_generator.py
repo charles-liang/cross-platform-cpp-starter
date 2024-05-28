@@ -11,7 +11,7 @@ class IOSProjectGenerator(ProjectGenerator):
     def __init__(self):
         self.sub_directory = 'ios'
 
-    def generate(self, source_directory: Path, build_directory: Path, profile: str):
+    def generate(self, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
         ios_directory = Path(build_directory, self.sub_directory)
         if not ios_directory.exists():
             self.clone_project(ios_directory)

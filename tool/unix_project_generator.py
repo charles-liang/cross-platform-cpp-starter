@@ -6,7 +6,7 @@ from project_generator import ProjectGenerator
 
 
 class UnixProjectGenerator(ProjectGenerator):
-    def generate(self, source_directory: Path, build_directory: Path, profile: str):
+    def generate(self, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
         args = [get_cmake_executable(), str(source_directory),
                 '-DCMAKE_BUILD_TYPE=%s' % profile, '-B%s' % str(Path(build_directory, 'linux'))]
 

@@ -1,32 +1,32 @@
 #include <iostream>
 #include "SDL2/SDL.h"
-
-int main() {
+#include "SDL2/SDL_syswm.h"
+int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize. SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
 
-//     const int width = 800;
-//     const int height = 600;
-//     SDL_Window* window = SDL_CreateWindow(
-//         argv[0], SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width,
-//         height, SDL_WINDOW_SHOWN);
+    const int width = 800;
+    const int height = 600;
+    SDL_Window* window = SDL_CreateWindow(
+        argv[0], SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width,
+        height, SDL_WINDOW_SHOWN);
 
-//     if (window == nullptr) {
-//         printf("Window could not be created. SDL_Error: %s\n", SDL_GetError());
-//         return 1;
-//     }
+    if (window == nullptr) {
+        printf("Window could not be created. SDL_Error: %s\n", SDL_GetError());
+        return 1;
+    }
 
 // #if !BX_PLATFORM_EMSCRIPTEN
-//     SDL_SysWMinfo wmi;
-//     SDL_VERSION(&wmi.version);
-//     if (!SDL_GetWindowWMInfo(window, &wmi)) {
-//         printf(
-//             "SDL_SysWMinfo could not be retrieved. SDL_Error: %s\n",
-//             SDL_GetError());
-//         return 1;
-//     }
+    SDL_SysWMinfo wmi;
+    SDL_VERSION(&wmi.version);
+    if (!SDL_GetWindowWMInfo(window, &wmi)) {
+        printf(
+            "SDL_SysWMinfo could not be retrieved. SDL_Error: %s\n",
+            SDL_GetError());
+        return 1;
+    }
 //     bgfx::renderFrame(); // single threaded mode
 // #endif // !BX_PLATFORM_EMSCRIPTEN
 
@@ -133,9 +133,9 @@ int main() {
 
 //     ImGui::DestroyContext();
 //     bgfx::shutdown();
-
-//     SDL_DestroyWindow(window);
-//     SDL_Quit();
+    printf("Exiting cleanly\n");
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
     return 0;
 }
