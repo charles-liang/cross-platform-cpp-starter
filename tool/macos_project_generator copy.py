@@ -1,4 +1,5 @@
 import os
+import platform
 import shutil
 import subprocess
 from pathlib import Path
@@ -12,8 +13,9 @@ class MacOSProjectGenerator(ProjectGenerator):
         self.platform = 'macos'
         self.sub_directory = self.platform
 
-    def generate(self, source_directory: Path, build_directory: Path, profile: str):
-        print(f"Generating {self.platform} project")
+    def generate(self, source_directory: Path, build_directory: Path, profile: str = 'Release', arch: str = ''):
+        self.arch = arch if arch else platform.machine()
+        print(f"Generating {self.platform} project for {self.arch} arch")
         macos_directory = Path(build_directory, self.sub_directory)
         if not macos_directory.exists():
             self.clone_project(macos_directory)
@@ -22,7 +24,7 @@ class MacOSProjectGenerator(ProjectGenerator):
 
         args = [get_cmake_executable(), str(source_directory), '-B%s' % str(Path(build_directory, self.sub_directory))]
 
-        args += self.get_cmake_args(cmake_tool_chain_path, macos_directory)
+        args += self.get_cmake_args(cmake_tool_chain_path, macos_directory, profile, self.arch)
         command = " ".join(args)
         print(f"{self.platform} generate cmake command: {command}")
         exit_code = subprocess.call(command, shell=True, cwd=str(source_directory))
@@ -30,10 +32,11 @@ class MacOSProjectGenerator(ProjectGenerator):
             command = ' '.join(args)
             raise Exception(f"{self.platform} generate failed: {exit_code}, command is: {command}" )
 
-    def get_cmake_args(self, cmake_tool_chain_path: Path, macos_directory: Path, profile: str = 'Release'):
-        return ['-DPLATFORM=MAC_UNIVERSAL', '-DBUILD_DIR=%s' % str(macos_directory),
+    def get_cmake_args(self, cmake_tool_chain_path: Path, macos_directory: Path, profile: str, arch: str):
+        target_arch = 'MAC_ARM64' if arch == 'arm64' else 'MAC'
+        return ['-DPLATFORM=%s' % target_arch, '-DBUILD_DIR=%s' % str(macos_directory),
                 # '-SDK_VERSION', ''
-                'DCMAKE_BUILD_TYPE=%s' % profile,
+                '-DCMAKE_BUILD_TYPE=%s' % profile,
                 '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-GXcode']
 
     def clone_project(self, macos_directory):

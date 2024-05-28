@@ -18,10 +18,9 @@ class AndroidProjectGenerator(ProjectGenerator):
 
     def generate(self, source_directory: Path, build_directory: Path, profile: str):
         android_directory = Path(build_directory, self.sub_directory)
-        if android_directory.exists():
-            return
+        if not android_directory.exists():
 
-        self.clone_project(android_directory)
+            self.clone_project(android_directory)
         self.write_template(android_directory, source_directory)
 
     def clone_project(self, android_directory):
@@ -33,12 +32,12 @@ class AndroidProjectGenerator(ProjectGenerator):
         for jinja2_file in jinja2_files:
             self.generate_jinja2(jinja2_file, source_directory)
 
-    def generate_jinja2(self, jinja2_file: Path, source_directory: Path):
+    def generate_jinja2(self, jinja2_file: Path, source_directory: Path, profile: str = 'Release'):
         template = Template(jinja2_file.read_text())
 
         output_content = template.render(
             cmake_list_path='%r' % str(Path(source_directory, CMAKE_LIST_FILE)),
-            cmake_configuration=CMAKE_CONFIG
+            cmake_configuration=f"{CMAKE_CONFIG} -DCMAKE_BUILD_TYPE={profile}" 
         )
 
         output = Path(str(jinja2_file).replace('.%s' % JINJA2_EXTENSION, ''))

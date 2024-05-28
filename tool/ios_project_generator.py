@@ -13,23 +13,23 @@ class IOSProjectGenerator(ProjectGenerator):
 
     def generate(self, source_directory: Path, build_directory: Path, profile: str):
         ios_directory = Path(build_directory, self.sub_directory)
-        if ios_directory.exists():
-            return
-        self.clone_project(ios_directory)
+        if not ios_directory.exists():
+            self.clone_project(ios_directory)
 
         cmake_tool_chain_path = Path(source_directory, 'cmake', 'utils', 'ios.toolchain.cmake')
 
         args = [get_cmake_executable(), str(source_directory), '-B%s' % str(Path(build_directory, 'ios'))]
 
-        args += self.get_cmake_args(cmake_tool_chain_path, ios_directory)
+        args += self.get_cmake_args(cmake_tool_chain_path, ios_directory, profile)
 
         exit_code = subprocess.call(" ".join(args), shell=True, cwd=str(source_directory))
         if exit_code != 0:
             command = ' '.join(args)
             raise Exception(f"{self.sub_directory} generate failed: {exit_code}, command is: {command}" )
 
-    def get_cmake_args(self, cmake_tool_chain_path: Path, ios_directory: Path):
+    def get_cmake_args(self, cmake_tool_chain_path: Path, ios_directory: Path, profile: str = 'Release'):
         return ['-DPLATFORM=OS64', '-DBUILD_DIR=%s' % str(ios_directory),
+                '-DCMAKE_BUILD_TYPE=%s' % profile,
                 '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-DENABLE_BITCODE=FALSE', '-GXcode']
 
     def clone_project(self, ios_directory):
