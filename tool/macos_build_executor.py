@@ -7,10 +7,11 @@ from build_executor import BuildExecutor
 from cmake_utils import get_cmake_executable
 
 
-class IOSBuildExecutor(BuildExecutor):
+class MacOSBuildExecutor(BuildExecutor):
     def __init__(self, source_directory: Path):
+        self.platform = 'macos'
         self.source_directory = source_directory
-        self.build_directory = Path(source_directory, 'build', 'ios')
+        self.build_directory = Path(source_directory, 'build', self.platform)
         self.logger = logging.getLogger(__name__)
 
     def build(self, profile: str):
@@ -19,9 +20,9 @@ class IOSBuildExecutor(BuildExecutor):
         exit_code = subprocess.call(args, cwd=str(self.build_directory))
         if exit_code != 0:
             command = ' '.join(args)
-            raise Exception(f"ios build failed: {exit_code}, command is: {command}")
-
-        output_apps = list(self.build_directory.rglob("*exampleapp.app"))
+            raise Exception(f"{self.platform} build failed: {exit_code}, command is: {command}")
+        print(f"{self.build_directory}")
+        output_apps = list(self.build_directory.rglob("*helloworld"))
         if len(output_apps) == 0:
             raise Exception('Oop! Something went wrong')
 

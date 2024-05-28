@@ -25,10 +25,11 @@ class IOSProjectGenerator(ProjectGenerator):
 
         exit_code = subprocess.call(" ".join(args), shell=True, cwd=str(source_directory))
         if exit_code != 0:
-            raise Exception("%s" % args)
+            command = ' '.join(args)
+            raise Exception(f"{self.sub_directory} generate failed: {exit_code}, command is: {command}" )
 
     def get_cmake_args(self, cmake_tool_chain_path: Path, ios_directory: Path):
-        return ['-DPLATFORM=IOS', '-DBUILD_DIR=%s' % str(ios_directory),
+        return ['-DPLATFORM=OS64', '-DBUILD_DIR=%s' % str(ios_directory),
                 '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-DENABLE_BITCODE=FALSE', '-GXcode']
 
     def clone_project(self, ios_directory):

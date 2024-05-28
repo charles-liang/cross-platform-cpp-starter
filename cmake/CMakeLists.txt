@@ -1,6 +1,8 @@
 set(CMAKE_UTILITIES
         utils/common.cmake
-        utils/ios.cmake)
+        utils/dependencies.cmake
+        utils/ios.cmake
+        )
 
 foreach (UTILITY ${CMAKE_UTILITIES})
     include(${UTILITY})

@@ -3,6 +3,7 @@ from pathlib import Path
 from android_project_generator import AndroidProjectGenerator
 from cygwin_project_generator import CygwinProjectGenerator
 from ios_project_generator import IOSProjectGenerator
+from macos_project_generator import MacOSProjectGenerator
 from unix_project_generator import UnixProjectGenerator
 
 
@@ -15,9 +16,12 @@ class ProjectGeneratorFactory:
             project_generator = IOSProjectGenerator()
         elif platform == 'windows':
             project_generator = CygwinProjectGenerator()
-        elif platform == 'osx' or platform == 'linux':
+        elif platform == 'linux':
             project_generator = UnixProjectGenerator()
+        elif platform == 'macos':
+            project_generator = MacOSProjectGenerator()
         else:
             raise Exception('Unsupported platform %s' % platform)
-
+        project_generator.pre_generate(source_directory, build_directory, profile)
         project_generator.generate(source_directory, build_directory, profile)
+        project_generator.post_generate(source_directory, build_directory, profile)
