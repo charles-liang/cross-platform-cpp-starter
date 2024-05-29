@@ -7,8 +7,12 @@ from project_generator import ProjectGenerator
 
 
 class CygwinProjectGenerator(ProjectGenerator):
+    def __init__(self):
+        self.os = 'Cygwin'
+
     def generate(self, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
         args = [get_cmake_executable(), get_cygwin_path(source_directory),
+                '-DOS=%s' % self.os,
                 '-DCMAKE_BUILD_TYPE=%s' % profile, '-B%s' % get_cygwin_path(Path(build_directory, 'unix'))]
 
         args += self.get_cmake_args(profile)

@@ -10,8 +10,9 @@ from path_utils import get_cygwin_path
 
 class CygwinBuildExecutor(BuildExecutor):
     def __init__(self, source_directory: Path):
+        self.os = 'Cygwin'
         self.source_directory = source_directory
-        self.build_directory = Path(source_directory, 'build', 'cygwin')
+        self.build_directory = Path(source_directory, 'build', f'{self.os}'.lower())
         self.logger = logging.getLogger(__name__)
 
     def build(self, profile: str):

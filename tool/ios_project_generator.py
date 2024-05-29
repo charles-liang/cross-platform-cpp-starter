@@ -9,10 +9,11 @@ from project_generator import ProjectGenerator
 
 class IOSProjectGenerator(ProjectGenerator):
     def __init__(self):
+        self.os = 'IOS'
         self.sub_directory = 'ios'
 
     def generate(self, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
-        ios_directory = Path(build_directory, self.sub_directory)
+        ios_directory = Path(build_directory, f"{self.sub_directory}-{arch}")
         if not ios_directory.exists():
             self.clone_project(ios_directory)
 
@@ -30,7 +31,9 @@ class IOSProjectGenerator(ProjectGenerator):
     def get_cmake_args(self, cmake_tool_chain_path: Path, ios_directory: Path, profile: str = 'Release'):
         return ['-DPLATFORM=OS64', '-DBUILD_DIR=%s' % str(ios_directory),
                 '-DCMAKE_BUILD_TYPE=%s' % profile,
-                '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-DENABLE_BITCODE=FALSE', '-GXcode']
+                '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-DENABLE_BITCODE=FALSE', '-GXcode',
+                '-DOS=%s' % self.os
+                ]
 
     def clone_project(self, ios_directory):
         current_path = os.path.abspath(os.path.join(os.path.realpath(__file__), '..'))

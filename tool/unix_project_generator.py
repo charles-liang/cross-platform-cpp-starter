@@ -6,6 +6,8 @@ from project_generator import ProjectGenerator
 
 
 class UnixProjectGenerator(ProjectGenerator):
+    def __init__(self):
+        self.os = 'Unix'
     def generate(self, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
         args = [get_cmake_executable(), str(source_directory),
                 '-DCMAKE_BUILD_TYPE=%s' % profile, '-B%s' % str(Path(build_directory, 'linux'))]
@@ -19,4 +21,4 @@ class UnixProjectGenerator(ProjectGenerator):
             raise Exception(f"linux generate cmake failed: {exit_code}, command is: {command}")
 
     def get_cmake_args(self):
-        return ['-DCMAKE_CXX_COMPILER_WORKS=TRUE', '-G', '"CodeBlocks - Unix Makefiles"']
+        return ['-DCMAKE_CXX_COMPILER_WORKS=TRUE', '-G', '"CodeBlocks - Unix Makefiles"', '-DOS=%s' % self.os]

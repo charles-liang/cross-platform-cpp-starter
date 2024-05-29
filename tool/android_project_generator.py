@@ -14,8 +14,8 @@ JINJA2_EXTENSION = 'jinja2'
 
 class AndroidProjectGenerator(ProjectGenerator):
     def __init__(self):
-        self.sub_directory = 'android'
-
+        self.os = 'Android'
+        self.sub_directory = f'{self.os}'.lower()
     def generate(self, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
         android_directory = Path(build_directory, self.sub_directory)
         if not android_directory.exists():
@@ -37,7 +37,7 @@ class AndroidProjectGenerator(ProjectGenerator):
 
         output_content = template.render(
             cmake_list_path='%r' % str(Path(source_directory, CMAKE_LIST_FILE)),
-            cmake_configuration=f"{CMAKE_CONFIG} -DCMAKE_BUILD_TYPE={profile}" 
+            cmake_configuration=f"{CMAKE_CONFIG} -DCMAKE_BUILD_TYPE={profile} -DOS={self.os}" 
         )
 
         output = Path(str(jinja2_file).replace('.%s' % JINJA2_EXTENSION, ''))

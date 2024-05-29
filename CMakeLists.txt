@@ -19,10 +19,10 @@ set(BINARY_DIR ${PREFIX_DIR}/build)
 
 include_directories(${PREFIX_DIR}/include)
 
-if("${PLATFORM}" STREQUAL "IOS")
+if("${OS}" STREQUAL "IOS")
     set(SOURCES ${SOURCES} ${PUBLIC_HEADER})
 
-elseif("${PLATFORM}" STREQUAL "ANDROID")
+elseif("${OS}" STREQUAL "Android")
     set(SOURCES ${SOURCES} src/android_wrapper.cpp)
 
 else()
@@ -51,7 +51,7 @@ if(NOT EMSCRIPTEN)
     set(ARCH_BUILD_DIR "${PREFIX_DIR}/build/${ARCHS}/SDL2")
 
     add_custom_command(
-        TARGET SDL2
+        TARGET SDL2-${OS}-${ARCHS}
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${ARCH_BUILD_DIR}/include-config-${CMAKE_BUILD_TYPE_LOWER}/SDL2/SDL_config.h" "${PREFIX_DIR}/include/SDL2"
     )
