@@ -36,7 +36,7 @@ class MacOSProjectGenerator(ProjectGenerator):
         target_arch = 'MAC_ARM64' if arch == 'arm64' else 'MAC'
         return ['-DPLATFORM=%s' % target_arch, '-DCMAKE_BUILD_TYPE=%s' % profile,'-DBUILD_DIR=%s' % str(macos_directory), 
                 '-DOS=%s' % self.os,
-                '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-GXcode']
+                '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-G Xcode']
 
     def clone_project(self, macos_directory):
         current_path = os.path.abspath(os.path.join(os.path.realpath(__file__), '..'))

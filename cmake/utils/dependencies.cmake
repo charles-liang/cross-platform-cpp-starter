@@ -43,14 +43,10 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
         DEPENDS ${NAME}_source
     )
     MESSAGE(STATUS "Add external project: ${NAME} ${OS} ${ARCHS}")
-    MESSAGE(STATUS "${APPLE} ${OS}")
 
     if(${APPLE})
-        message(STATUS "APPLE: ${APPLE}")
-
         if("${OS}" STREQUAL "IOS")
             # TODO: Fix this
-            MESSAGE(STATUS "IOS: ${IOS}")
             setup_framework_properties(${TRIPLE_NAME} ${VERSION})
             add_dependencies(${PROJECT_NAME}_lib ${TRIPLE_NAME})
         endif()

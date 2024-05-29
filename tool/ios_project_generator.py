@@ -34,7 +34,7 @@ class IOSProjectGenerator(ProjectGenerator):
     def get_cmake_args(self, cmake_tool_chain_path: Path, ios_directory: Path, profile: str = 'Release'):
         return ['-DPLATFORM=OS64', '-DBUILD_DIR=%s' % str(ios_directory),
                 '-DCMAKE_BUILD_TYPE=%s' % profile,
-                '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-DENABLE_BITCODE=FALSE', '-GXcode',
+                '-DCMAKE_TOOLCHAIN_FILE=%s' % str(cmake_tool_chain_path), '-DENABLE_BITCODE=FALSE', '-G Xcode',
                 '-DOS=%s' % self.os
                 ]
 
