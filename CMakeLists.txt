@@ -10,8 +10,9 @@ set(CMAKE_ANDROID_STL_TYPE "c++_static")
 add_subdirectory(cmake)
 
 
-set_diagnostic_flags()
-hide_symbol()
+# set_diagnostic_flags()
+
+# hide_symbol()
 
 set(PREFIX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/build)
 set(BINARY_DIR ${PREFIX_DIR}/build)
