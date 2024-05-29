@@ -17,7 +17,7 @@ class MacOSBuildExecutor(BuildExecutor):
         self.build_directory = Path(source_directory, 'build', f"{self.os}")
         self.logger = logging.getLogger(__name__)
 
-    def build(self, profile: str):
+    def build(self, platform: str, source_directory: Path, build_directory: Path, profile: str, arch: str):
         #TODO: need to from parent
         build_path = f'{self.build_directory}-{self.arch}'
         args = [get_cmake_executable(), '--build', build_path, '--config', profile, '--', '-j',

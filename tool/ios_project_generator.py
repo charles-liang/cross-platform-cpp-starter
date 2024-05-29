@@ -13,17 +13,20 @@ class IOSProjectGenerator(ProjectGenerator):
         self.sub_directory = 'ios'
 
     def generate(self, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
-        ios_directory = Path(build_directory, f"{self.sub_directory}-{arch}")
+        self.arch = arch if arch else "arm64"
+        ios_directory = Path(build_directory, f"{self.sub_directory}-{self.arch}")
+        print(ios_directory)
         if not ios_directory.exists():
             self.clone_project(ios_directory)
 
         cmake_tool_chain_path = Path(source_directory, 'cmake', 'utils', 'ios.toolchain.cmake')
 
-        args = [get_cmake_executable(), str(source_directory), '-B%s' % str(Path(build_directory, 'ios'))]
+        args = [get_cmake_executable(), str(source_directory), '-B%s' % str(Path(build_directory, f'ios-{self.arch}'))]
 
         args += self.get_cmake_args(cmake_tool_chain_path, ios_directory, profile)
-
-        exit_code = subprocess.call(" ".join(args), shell=True, cwd=str(source_directory))
+        command = ' '.join(args)
+        print(f"{self.os}-{self.arch} generate command: {command}")
+        exit_code = subprocess.call(command, shell=True, cwd=str(source_directory))
         if exit_code != 0:
             command = ' '.join(args)
             raise Exception(f"{self.sub_directory} generate failed: {exit_code}, command is: {command}" )
@@ -37,4 +40,5 @@ class IOSProjectGenerator(ProjectGenerator):
 
     def clone_project(self, ios_directory):
         current_path = os.path.abspath(os.path.join(os.path.realpath(__file__), '..'))
+        print("ios clone",str(Path(current_path, self.sub_directory)), str(ios_directory))
         shutil.copytree(str(Path(current_path, self.sub_directory)), str(ios_directory))

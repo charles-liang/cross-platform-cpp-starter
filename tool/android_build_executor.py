@@ -13,7 +13,7 @@ class AndroidBuildExecutor(BuildExecutor):
         self.gradle = Gradle(Path(self.build_directory, f'{self.os}'.lower()))
         self.logger = logging.getLogger(__name__)
 
-    def build(self, profile: str):
+    def build(self, platform: str, source_directory: Path, build_directory: Path, profile: str, arch: str):
         self.gradle.run_task('assemble%s' % profile)
 
         output_apks = list(self.build_directory.rglob('exampleapp*%s*apk' % profile.lower()))

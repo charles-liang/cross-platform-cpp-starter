@@ -14,7 +14,7 @@ class UnixBuildExecutor(BuildExecutor):
         self.build_directory = Path(source_directory, 'build', 'linux')
         self.logger = logging.getLogger(__name__)
 
-    def build(self, profile: str):
+    def build(self, platform: str, source_directory: Path, build_directory: Path, profile: str, arch: str):
         target = 'helloworld'
 
         args = [get_cmake_executable(), '--build', str(self.build_directory), '--target', target,

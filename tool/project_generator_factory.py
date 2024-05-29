@@ -9,7 +9,7 @@ from unix_project_generator import UnixProjectGenerator
 
 class ProjectGeneratorFactory:
 
-    def generate(self, platform: str, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
+    def generate(self, platform: str, source_directory: Path, build_directory: Path, profile: str, arch: str):
         if platform == 'android':
             project_generator = AndroidProjectGenerator()
         elif platform == 'ios':

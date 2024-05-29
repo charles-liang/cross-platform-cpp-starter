@@ -1,22 +1,23 @@
-macro(setup_framework_properties TARGET)
-    set_target_properties(${TARGET} PROPERTIES FRAMEWORK TRUE
-            FRAMEWORK_VERSION "1.0"
-            MACOSX_FRAMEWORK_IDENTIFIER "vn.nganht.helloworld"
-            MACOSX_FRAMEWORK_INFO_PLIST ${BUILD_DIR}/framework.plist.in
-            VERSION "1.0"
-            SOVERSION "1.0"
-            PUBLIC_HEADER "${PUBLIC_HEADER}"
-            XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
-            XCODE_ATTRIBUTE_SKIP_INSTALL "YES")
-endmacro()
+function(setup_framework_properties TARGET FRAMEWORK_VERSION)
+        MESSAGE(STATUS "setup_framework_properties TARGET: ${BUILD_DIR} ${PUBLIC_HEADER}")
+        set_target_properties(${TARGET} PROPERTIES FRAMEWORK TRUE
+                FRAMEWORK_VERSION ${FRAMEWORK_VERSION}
+                MACOSX_FRAMEWORK_IDENTIFIER "${BUNLDE_ID}.${TARGET}"
+                MACOSX_FRAMEWORK_INFO_PLIST ${BUILD_DIR}/framework.plist.in
+                VERSION "1.0"
+                SOVERSION "1.0"
+                PUBLIC_HEADER "${PUBLIC_HEADER}"
+                XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
+                XCODE_ATTRIBUTE_SKIP_INSTALL "YES")
+endfunction()
 
-macro(add_exampleapp TARGET)
+macro(add_iosapp TARGET)
     set(DEVELOPMENT_PROJECT_NAME "project")
-    set(APP_NAME "exampleapp")
+    set(APP_NAME "${TARGET}")
 
     set(PRODUCT_NAME ${APP_NAME})
     set(EXECUTABLE_NAME ${APP_NAME})
-    set(APP_BUNDLE_IDENTIFIER "vn.nganht.helloworld.exampleapp")
+    set(APP_BUNDLE_IDENTIFIER "${BUNLDE_ID}")
     set(MACOSX_BUNDLE_EXECUTABLE_NAME ${APP_NAME})
     set(MACOSX_BUNDLE_INFO_STRING ${APP_BUNDLE_IDENTIFIER})
     set(MACOSX_BUNDLE_GUI_IDENTIFIER ${APP_BUNDLE_IDENTIFIER})
@@ -24,21 +25,19 @@ macro(add_exampleapp TARGET)
     set(MACOSX_BUNDLE_ICON_FILE "")
     set(MACOSX_BUNDLE_LONG_VERSION_STRING "1.0")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0")
-    set(MACOSX_BUNDLE_BUNDLE_VERSION "1.0")
-    set(MACOSX_BUNDLE_COPYRIGHT "nganht")
+    set(MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
+    set(MACOSX_BUNDLE_COPYRIGHT "hanabit")
 
     set(CMAKE_EXE_LINKER_FLAGS
             "-framework AudioToolbox -framework CoreGraphics -framework QuartzCore -framework UIKit")
 
-    set(EXAMPLE_APP_DIR ${BUILD_DIR}/exampleapp)
+    set(EXAMPLE_APP_DIR ${BUILD_DIR}/${PRODUCT_NAME})
     set(APP_HEADER_FILES
             ${EXAMPLE_APP_DIR}/AppDelegate.h
-            ${EXAMPLE_APP_DIR}/ViewController.h
             )
 
     set(APP_SOURCE_FILES
             ${EXAMPLE_APP_DIR}/AppDelegate.m
-            ${EXAMPLE_APP_DIR}/ViewController.mm
             ${EXAMPLE_APP_DIR}/main.m
             )
 
@@ -46,7 +45,7 @@ macro(add_exampleapp TARGET)
             ${EXAMPLE_APP_DIR}/Main.storyboard
             ${EXAMPLE_APP_DIR}/LaunchScreen.storyboard
             )
-
+        message(status "add_executable APP_NAME: ${APP_NAME}")
     add_executable(
             ${APP_NAME}
             MACOSX_BUNDLE
@@ -66,10 +65,10 @@ macro(add_exampleapp TARGET)
     target_link_libraries(${APP_NAME} ${UIKIT} ${FOUNDATION} ${MOBILECORESERVICES} ${CFNETWORK} ${SYSTEMCONFIGURATION})
 
 
-    add_dependencies(${APP_NAME} ${TARGET})
+    add_dependencies(${APP_NAME} ${TARGET}_lib)
 
     set_target_properties(${APP_NAME} PROPERTIES
-            XCODE_ATTRIBUTE_OTHER_LDFLAGS "${XCODE_ATTRIBUTE_OTHER_LDFLAGS} -framework ${TARGET}"
+            XCODE_ATTRIBUTE_OTHER_LDFLAGS "${XCODE_ATTRIBUTE_OTHER_LDFLAGS} -framework ${TARGET}_lib"
             MACOSX_BUNDLE_INFO_PLIST ${EXAMPLE_APP_DIR}/plist.in
             XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
             XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/Frameworks"
@@ -83,8 +82,8 @@ macro(add_exampleapp TARGET)
             POST_BUILD COMMAND /bin/sh -c
             \"COMMAND_DONE=0 \;
             if ${CMAKE_COMMAND} -E copy_directory
-                \${BUILT_PRODUCTS_DIR}/${TARGET}.framework
-                \${BUILT_PRODUCTS_DIR}/${APP_NAME}.app/Frameworks/${TARGET}.framework
+                \${BUILT_PRODUCTS_DIR}/${TARGET}_lib.framework
+                \${BUILT_PRODUCTS_DIR}/${APP_NAME}.app/Frameworks/${TARGET}_lib.framework
                 \&\>/dev/null \; then
                 COMMAND_DONE=1 \;
             fi \;

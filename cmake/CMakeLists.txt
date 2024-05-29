@@ -8,4 +8,4 @@ foreach (UTILITY ${CMAKE_UTILITIES})
     include(${UTILITY})
 endforeach ()
 
-add_custom_target(hello_cmake SOURCES ${CMAKE_UTILITIES})
+# add_custom_target(hello_cmake SOURCES ${CMAKE_UTILITIES})
