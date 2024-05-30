@@ -104,12 +104,12 @@ if(NOT EMSCRIPTEN)
     string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
     set(ARCH_BUILD_DIR "${PREFIX_DIR}/build/${ARCHS}/SDL2")
 
-    add_custom_command(
-        TARGET SDL2-${OS}-${ARCHS}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${ARCH_BUILD_DIR}/include-config-${CMAKE_BUILD_TYPE_LOWER}/SDL2/SDL_config.h" "${PREFIX_DIR}/include/SDL2"
-        DEPENDS "${ARCH_BUILD_DIR}/include-config-${CMAKE_BUILD_TYPE_LOWER}/SDL2/SDL_config.h"
-    )
+    # add_custom_command(
+    #     TARGET SDL2-${OS}-${ARCHS}
+    #     POST_BUILD
+    #     COMMAND ${CMAKE_COMMAND} -E copy "${ARCH_BUILD_DIR}/include-config-${CMAKE_BUILD_TYPE_LOWER}/SDL2/SDL_config.h" "${PREFIX_DIR}/include/SDL2"
+    #     DEPENDS "${ARCH_BUILD_DIR}/include-config-${CMAKE_BUILD_TYPE_LOWER}/SDL2/SDL_config.h"
+    # )
 
     target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 endif()
