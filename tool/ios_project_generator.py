@@ -5,7 +5,7 @@ from pathlib import Path
 
 from cmake_utils import get_cmake_executable
 from project_generator import ProjectGenerator
-
+import json
 
 class IOSProjectGenerator(ProjectGenerator):
     def __init__(self):
@@ -24,8 +24,16 @@ class IOSProjectGenerator(ProjectGenerator):
         args = [get_cmake_executable(), str(source_directory), '-B%s' % str(Path(build_directory, f'ios-{self.arch}'))]
 
         args += self.get_cmake_args(cmake_tool_chain_path, ios_directory, profile)
+        p = Path(source_directory, "apple.development.json")
+        with open(p, "r") as files:
+            s = files.read()
+            ios_args = json.loads(s)
+            for key in ios_args.keys():
+                value = ios_args[key]
+                args.append(f"-D{key}={value}")
         command = ' '.join(args)
         print(f"{self.os}-{self.arch} generate command: {command}")
+
         exit_code = subprocess.call(command, shell=True, cwd=str(source_directory))
         if exit_code != 0:
             command = ' '.join(args)

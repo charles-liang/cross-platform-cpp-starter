@@ -19,6 +19,7 @@ class IOSBuildExecutor(BuildExecutor):
                 '--build', str(self.build_directory), 
                 '--config', profile, 
                 '--', 
+                '-allowProvisioningUpdates',
                 '-j', '%d' % os.cpu_count()]
         command = ' '.join(args)
         self.logger.info(f"{self.os} build command: {command}")
