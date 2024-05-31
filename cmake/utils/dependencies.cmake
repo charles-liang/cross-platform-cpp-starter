@@ -32,13 +32,13 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
         PREFIX ${PREFIX_DIR}
         SOURCE_DIR ${SHARED_SOURCE_DIR}
         BINARY_DIR ${ARCH_BUILD_DIR}
-        CMAKE_COMMAND ${CMAKE_COMMAND}
-        CMAKE_ARGS ""
+        CMAKE_COMMAND ${CMAKE_COMMAND} $
+        CMAKE_ARGS ${passed_variables}
         DOWNLOAD_COMMAND ""
 
         CONFIGURE_COMMAND ${CMAKE_COMMAND} "${SHARED_SOURCE_DIR}/CMakeLists.txt" ${CMAKE_CONFIGURATION_ARGS} -DCMAKE_BUILD_Type=Release
         BUILD_COMMAND ${CMAKE_COMMAND} --build ${ARCH_BUILD_DIR} ${CMAKE_BUILD_ARGS} --config Release
-
+    
         # COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARCH_BUILD_DIR}/${CMAKE_BUILD_TYPE}/ ${PREFIX_DIR}/${ARCHS}/lib/
         # COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARCH_BUILD_DIR}/include ${PREFIX_DIR}/${ARCHS}/include
         INSTALL_COMMAND ${CMAKE_COMMAND} --install ${ARCH_BUILD_DIR} --prefix ${PREFIX_DIR}/${TRIPLE_NAME} --config Release
@@ -46,9 +46,18 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
         DEPENDS ${NAME}_source
     )
     MESSAGE(STATUS "Add external project: ${NAME} ${OS} ${ARCHS}")
+    
+
+   
+
+    # Register the include directory and library path
+    # ExternalProject_Get_Property(${NAME} PREFIX_DIR)
+    set(${NAME}_INCLUDE_DIRS ${PREFIX_DIR}/include)
+    set(${NAME}_LIBRARY_DIRS ${PREFIX_DIR}/${TRIPLE_NAME}/lib)
+    
 
     if(${APPLE})
-        if("${OS}" STREQUAL "IOS")
+        if(IOS)
             # TODO: Fix this
             setup_framework_properties(${TRIPLE_NAME} ${VERSION})
             add_dependencies(${PROJECT_NAME}_lib ${TRIPLE_NAME})
@@ -57,10 +66,6 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
         add_dependencies(${PROJECT_NAME} ${TRIPLE_NAME})
     endif()
 
-    # Register the include directory and library path
-    # ExternalProject_Get_Property(${NAME} PREFIX_DIR)
-    set(${NAME}_INCLUDE_DIRS ${PREFIX_DIR}/include)
-    set(${NAME}_LIBRARY_DIRS ${PREFIX_DIR}/${TRIPLE_NAME}/lib)
 
     if(WIN32)
         if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
@@ -68,8 +73,8 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
         else()
             set(${NAME}_LIBRARIES ${PREFIX_DIR}/${TRIPLE_NAME}/lib/lib${NAME}.lib)
         endif()
-    elseif(${APPLE})
-        if(${OS} STREQUAL "IOS")
+    elseif(APPLE)
+        if(IOS)
             if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
                 set(${NAME}_LIBRARIES ${PREFIX_DIR}/${TRIPLE_NAME}/lib/lib${NAME}d.a)
             else()
@@ -104,7 +109,7 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
     else()
         message(FATAL_ERROR "Unsupported OS")
     endif()
-
+    
     # if(NOT EXISTS "${${NAME}_LIBRARIES}")
     #     file(GLOB LIBRARY_FILES "${PREFIX_DIR}/${TRIPLE_NAME}/lib/lib${NAME}*")
 

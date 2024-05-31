@@ -1,9 +1,21 @@
 cmake_minimum_required(VERSION 3.29.3)
 set(PROJECT_NAME helloworld)
 set(PROJECT_VERSION 1.0.0)
-set(BUNLDE_ID art.hanabit.helloworld)
+set(ORGANIZATION art.hanabit)
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION})
 
+
+get_cmake_property(_variableNames VARIABLES)
+set(passed_variables "")
+
+foreach(_variableName ${_variableNames})
+    if("${_variableName}" MATCHES "IOS" OR "${_variableName}" MATCHES "ANDROID")
+        message("${_variableName} = ${${_variableName}}")
+
+        # 收集变量及其值
+        list(APPEND passed_variables "-D${_variableName}=${${_variableName}}")
+    endif()
+endforeach()
 include(ProcessorCount)
 
 # Detect the number of CPU cores
@@ -18,11 +30,9 @@ set(CMAKE_CONFIGURATION_ARGS "")
 
 set(CMAKE_CONFIGURATION_ARGS ${CMAKE_CONFIGURATION_ARGS} -DPREFIX_DIR=${PREFIX_DIR})
 set(CMAKE_BUILD_ARGS --parallel ${GLOBAL_NPROC})
-MESSAGE(STATUS "IOS: ${IOS}")
 if(${APPLE})
     set(CMAKE_CONFIGURATION_ARGS ${CMAKE_CONFIGURATION_ARGS} -G Xcode -DPLATFORM=${PLATFORM} -DOS=${OS} -DARCHS=${ARCHS} -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_CURRENT_SOURCE_DIR}/cmake/utils/ios.toolchain.cmake -DENABLE_BITCODE=${ENABLE_BITCODE} -DENABLE_ARC=${ENABLE_ARC})
     # set(CMAKE_BUILD_ARGS " ${CMAKE_BUILD_ARGS} "
-    set(CMAKE_CONFIGURATION_ARGS ${CMAKE_CONFIGURATION_ARGS} -DIOS=${IOS})
 endif()
 
 include(GNUInstallDirs)
@@ -91,25 +101,18 @@ message(STATUS "ALL_PUBLIC_HEADER: ${ALL_PUBLIC_HEADER}")
 # endif()
 add_main_executable(${PROJECT_NAME} PLATFORM ${OS} PUBLIC_HEADER ${ALL_PUBLIC_HEADER} SOURCES ${ALL_SOURCES})
 
-if(NOT EMSCRIPTEN)
-    add_external_project_if_missing(
-        ${PROJECT_NAME}
-        "SDL2"
-        "https://github.com/libsdl-org/SDL.git"
-        "release-2.30.3"
-        "2.30.3"
-        ${PREFIX_DIR}
-        ${BINARY_DIR}/${ARCHS}/SDL2
-    )
-    string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
-    set(ARCH_BUILD_DIR "${PREFIX_DIR}/build/${ARCHS}/SDL2")
-
-    # add_custom_command(
-    #     TARGET SDL2-${OS}-${ARCHS}
-    #     POST_BUILD
-    #     COMMAND ${CMAKE_COMMAND} -E copy "${ARCH_BUILD_DIR}/include-config-${CMAKE_BUILD_TYPE_LOWER}/SDL2/SDL_config.h" "${PREFIX_DIR}/include/SDL2"
-    #     DEPENDS "${ARCH_BUILD_DIR}/include-config-${CMAKE_BUILD_TYPE_LOWER}/SDL2/SDL_config.h"
-    # )
-
-    target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+if (APPLE)
+   
 endif()
+# if(NOT EMSCRIPTEN)
+#     add_external_project_if_missing(
+#         ${PROJECT_NAME}
+#         "SDL2"
+#         "https://github.com/libsdl-org/SDL.git"
+#         "release-2.30.3"
+#         "2.30.3"
+#         ${PREFIX_DIR}
+#         ${BINARY_DIR}/${ARCHS}/SDL2
+#     )
+#     target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+# endif()
