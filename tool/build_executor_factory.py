@@ -18,7 +18,7 @@ class BuildExecutorFactory:
         self.build_directory = Path(source_directory, BUILD_DIRECTORY)
 
     def build(self, platform: str, source_directory: Path, build_directory: Path, profile: str, arch: str):
-        _arch = None
+        _arch = arch
         if self.platform == 'android':
             build_executor = AndroidBuildExecutor(self.source_directory)
         elif self.platform == 'ios':
@@ -36,6 +36,7 @@ class BuildExecutorFactory:
         else:
             raise Exception('Unsupported platform %s' % self.platform)
         
+
         build_executor.pre_build(platform, source_directory, build_directory, profile, _arch)
         build_executor.build(platform, source_directory, build_directory, profile, _arch)
         build_executor.post_build(platform, source_directory, build_directory, profile, _arch)

@@ -11,9 +11,12 @@ class WinProjectGenerator(ProjectGenerator):
         self.os = 'win'
         
     def generate(self, source_directory: Path, build_directory: Path, profile: str, arch: str = None):
-        args = [get_cmake_executable(), 
+        triple =  f'{self.os}-{profile}-{arch}'.lower()
+        path = Path(build_directory, triple)
+        args = [f'"{get_cmake_executable()}"', 
                 '-DOS=%s' % self.os,
-                '-DCMAKE_BUILD_TYPE=%s' % profile, '-B%s' % get_cygwin_path(Path(build_directory, 'unix'))]
+                '-DARCHS=%s' % arch,
+                '-DCMAKE_BUILD_TYPE=%s' % profile,  f'-B{path}']
 
         args += self.get_cmake_args(profile)
         exit_code = subprocess.call(" ".join(args), shell=True, cwd=str(source_directory))

@@ -49,8 +49,8 @@ add_subdirectory(cmake)
 include_directories(${PREFIX_DIR}/include)
 
 set(SRC_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
-
-if(${ARCHS} STREQUAL "")
+message(STATUS "ARCHS: ${ARCHS}")
+if(NOT ${ARCHS})
 set(ARCHS "${CMAKE_HOST_SYSTEM_PROCESSOR}")
 endif()
 

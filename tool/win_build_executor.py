@@ -12,15 +12,20 @@ class WinBuildExecutor(BuildExecutor):
     def __init__(self, source_directory: Path):
         self.os = 'win'
         self.source_directory = source_directory
-        self.build_directory = Path(source_directory, 'build', f'{self.os}'.lower())
         self.logger = logging.getLogger(__name__)
 
     def build(self, platform: str, source_directory: Path, build_directory: Path, profile: str, arch: str):
         target = 'helloworld'
+        triple =  f'{self.os}-{profile}-{arch}'.lower()
 
-        args = [get_cmake_executable(), '--build', get_cygwin_path(self.build_directory), '--target', target,
-                '--', '-j', '%d' % os.cpu_count()]
-        exit_code = subprocess.call(args, cwd=self.build_directory)
+        self.build_directory = Path(source_directory, 'build', f'{triple}')
+
+
+        args = [get_cmake_executable(), '--build',f'{self.build_directory}', '--target', target,
+                '--', '/m:%d' % os.cpu_count()]
+        command = ' '.join(args)
+        print(f"{self.os} build {command}")
+        exit_code = subprocess.call(command, cwd=self.build_directory)
         if exit_code != 0:
             raise Exception("%s" % args)
 
