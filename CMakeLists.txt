@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.10.0)
 set(PROJECT_NAME helloworld)
 set(PROJECT_VERSION 1.0.0)
 set(ORGANIZATION art.hanabit)
@@ -64,19 +64,23 @@ MESSAGE(STATUS "ARCHS: ${ARCHS}")
 if(NOT DEFINED OS)
 message(FATAL_ERROR "OS variable is not set")
 endif()
+MESSAGE(STATUS "OS: ${OS}")
 
 set(ALL_SOURCES "")
 set(ALL_PUBLIC_HEADER "")
 
 set(SHARE_DIR "${SRC_SOURCE_DIR}/share")
 message(STATUS "SHARE_DIR: ${SHARE_DIR}")
+message(STATUS "Search Share Source Code ${SHARE_DIR}")
 file(GLOB_RECURSE PUBLIC_HEADERS "${SHARE_DIR}/*.h")
 file(GLOB_RECURSE SOURCES "${SHARE_DIR}/*.cpp" "${SHARE_DIR}/*.c")
 
 # PLATFORM CODE
-set(PLATFORM_DIR "${SRC_SOURCE_DIR}/src/platform")
-string(TOLOWER "${OS}" LOWERCASE_OS)
+set(PLATFORM_DIR "${SRC_SOURCE_DIR}/platform")
+string(TOLOWER ${OS} LOWERCASE_OS)
 set(PLATFORM_SOURCE_DIR "${PLATFORM_DIR}/${LOWERCASE_OS}")
+message(STATUS "Search Platform Source Code ${PLATFORM_SOURCE_DIR}")
+
 set(PLATFORM_SOURCES "")
 file(GLOB_RECURSE PLATFORM_SOURCES
 "${PLATFORM_SOURCE_DIR}/*.cpp"
