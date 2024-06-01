@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 3.29.3)
+cmake_minimum_required(VERSION 3.1.0)
 set(PROJECT_NAME helloworld)
 set(PROJECT_VERSION 1.0.0)
 set(ORGANIZATION art.hanabit)
-message(STATUS "DEVELOPMENT_TEAM_ID: ${DEVELOPMENT_TEAM_ID}")
 # set(DEVELOPMENT_TEAM $ENV{DEVELOPMENT_TEAM_ID})
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION})
 

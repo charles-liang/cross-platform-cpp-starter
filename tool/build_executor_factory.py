@@ -5,6 +5,7 @@ from android_build_executor import AndroidBuildExecutor
 from cygwin_build_executor import CygwinBuildExecutor
 from macos_build_executor import MacOSBuildExecutor
 from ios_build_executor import IOSBuildExecutor
+from win_build_executor import WinBuildExecutor
 from unix_build_executor import UnixBuildExecutor
 
 BUILD_DIRECTORY = 'build'
@@ -23,7 +24,9 @@ class BuildExecutorFactory:
         elif self.platform == 'ios':
             build_executor = IOSBuildExecutor(self.source_directory)
             _arch = arch if arch else 'arm64'
-        elif self.platform == 'windows':
+        elif self.platform == 'win':
+            build_executor = WinBuildExecutor(self.source_directory)
+        elif self.platform == 'cygwin':
             build_executor = CygwinBuildExecutor(self.source_directory)
         elif self.platform == 'linux':
             build_executor = UnixBuildExecutor(self.source_directory)

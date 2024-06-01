@@ -4,6 +4,7 @@ from android_project_generator import AndroidProjectGenerator
 from cygwin_project_generator import CygwinProjectGenerator
 from ios_project_generator import IOSProjectGenerator
 from macos_project_generator import MacOSProjectGenerator
+from win_project_generator import WinProjectGenerator
 from unix_project_generator import UnixProjectGenerator
 
 
@@ -14,7 +15,9 @@ class ProjectGeneratorFactory:
             project_generator = AndroidProjectGenerator()
         elif platform == 'ios':
             project_generator = IOSProjectGenerator()
-        elif platform == 'windows':
+        elif platform == 'win':
+            project_generator = WinProjectGenerator()
+        elif platform == 'cygwin':
             project_generator = CygwinProjectGenerator()
         elif platform == 'linux':
             project_generator = UnixProjectGenerator()

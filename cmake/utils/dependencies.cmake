@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.29.3)
-
 include(ExternalProject)
 
 function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERSION PREFIX_DIR BINARY_DIR)
