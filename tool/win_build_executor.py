@@ -21,7 +21,10 @@ class WinBuildExecutor(BuildExecutor):
         self.build_directory = Path(source_directory, 'build', f'{triple}')
 
 
-        args = [get_cmake_executable(), '--build',f'{self.build_directory}', '--target', target,
+        args = [get_cmake_executable(),
+            '--build',f'{self.build_directory}', 
+            '--target', target,
+            '--config', profile,
                 '--', '/m:%d' % os.cpu_count()]
         command = ' '.join(args)
         print(f"{self.os} build {command}")

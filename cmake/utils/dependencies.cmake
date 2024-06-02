@@ -30,7 +30,7 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
         PREFIX ${PREFIX_DIR}
         SOURCE_DIR ${SHARED_SOURCE_DIR}
         BINARY_DIR ${ARCH_BUILD_DIR}
-        CMAKE_COMMAND ${CMAKE_COMMAND} $
+        CMAKE_COMMAND ${CMAKE_COMMAND}
         CMAKE_ARGS ${passed_variables}
         DOWNLOAD_COMMAND ""
 
@@ -50,7 +50,8 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
 
     # Register the include directory and library path
     # ExternalProject_Get_Property(${NAME} PREFIX_DIR)
-    set(${NAME}_INCLUDE_DIRS ${PREFIX_DIR}/include)
+    set(${NAME}_INCLUDE_DIRS ${PREFIX_DIR}/${TRIPLE_NAME}/include)
+    include_directories( ${PREFIX_DIR}/${TRIPLE_NAME}/include)
     set(${NAME}_LIBRARY_DIRS ${PREFIX_DIR}/${TRIPLE_NAME}/lib)
     
 
@@ -67,9 +68,10 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
 
     if(WIN32)
         if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-            set(${NAME}_LIBRARIES ${PREFIX_DIR}/${TRIPLE_NAME}/lib/lib${NAME}d.lib)
+            set(${NAME}_LIBRARIES ${PREFIX_DIR}/${TRIPLE_NAME}/lib/${NAME}d.lib)
         else()
-            set(${NAME}_LIBRARIES ${PREFIX_DIR}/${TRIPLE_NAME}/lib/lib${NAME}.lib)
+            # TODO Fix this
+            set(${NAME}_LIBRARIES ${PREFIX_DIR}/${TRIPLE_NAME}/lib/${NAME}-static.lib)
         endif()
     elseif(APPLE)
         if(IOS)

@@ -50,7 +50,7 @@ include_directories(${PREFIX_DIR}/include)
 
 set(SRC_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 message(STATUS "ARCHS: ${ARCHS}")
-if(NOT ${ARCHS})
+if("${ARCHS}" STREQUAL "")
 set(ARCHS "${CMAKE_HOST_SYSTEM_PROCESSOR}")
 endif()
 
@@ -117,15 +117,25 @@ if(APPLE)
     # set_xcode_property(${PROJECT_NAME}_lib CODE_SIGN_IDENTITY "Apple Development" All)
     SET_XCODE_PROPERTY(${PROJECT_NAME}_lib DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
 endif()
-# if(NOT EMSCRIPTEN)
-#     add_external_project_if_missing(
-#         ${PROJECT_NAME}
-#         "SDL2"
-#         "https://github.com/libsdl-org/SDL.git"
-#         "release-2.30.3"
-#         "2.30.3"
-#         ${PREFIX_DIR}
-#         ${BINARY_DIR}/${ARCHS}/SDL2
-#     )
-#     target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
-# endif()
+
+if (MSVC)
+    # if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    #     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
+    # else()
+        set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+    # endif()
+endif()
+
+
+if(NOT EMSCRIPTEN)
+    add_external_project_if_missing(
+        ${PROJECT_NAME}
+        "SDL2"
+        "https://github.com/libsdl-org/SDL.git"
+        "release-2.30.3"
+        "2.30.3"
+        ${PREFIX_DIR}
+        ${BINARY_DIR}/${ARCHS}/SDL2
+    )
+    target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+endif()

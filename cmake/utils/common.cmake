@@ -46,6 +46,7 @@ macro(add_main_executable TARGET)
         add_library(${TARGET} SHARED ${ALL_SOURCES})
 
     else ()
+        message(status "ALL_SOURCES: ${ALL_SOURCES}")
         add_executable(${TARGET} ${ALL_SOURCES})
     endif ()
 endmacro()
