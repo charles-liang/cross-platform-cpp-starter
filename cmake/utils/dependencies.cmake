@@ -35,8 +35,8 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
         DOWNLOAD_COMMAND ""
 
         CONFIGURE_COMMAND ${CMAKE_COMMAND} "${SHARED_SOURCE_DIR}/CMakeLists.txt" ${CMAKE_CONFIGURATION_ARGS} -DCMAKE_BUILD_Type=Release
-        BUILD_COMMAND ${CMAKE_COMMAND} --build ${ARCH_BUILD_DIR} ${CMAKE_BUILD_ARGS} --config Release
-    
+        BUILD_COMMAND ${CMAKE_COMMAND} --build ${ARCH_BUILD_DIR} --config Release ${CMAKE_BUILD_ARGS}
+
         # COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARCH_BUILD_DIR}/${CMAKE_BUILD_TYPE}/ ${PREFIX_DIR}/${ARCHS}/lib/
         # COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARCH_BUILD_DIR}/include ${PREFIX_DIR}/${ARCHS}/include
         INSTALL_COMMAND ${CMAKE_COMMAND} --install ${ARCH_BUILD_DIR} --prefix ${PREFIX_DIR}/${TRIPLE_NAME} --config Release
@@ -55,12 +55,19 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
     set(${NAME}_LIBRARY_DIRS ${PREFIX_DIR}/${TRIPLE_NAME}/lib)
     
 
-    if(${APPLE})
+    if(APPLE)
         if(IOS)
             # TODO: Fix this
             setup_framework_properties(${TRIPLE_NAME} ${VERSION})
             add_dependencies(${PROJECT_NAME}_lib ${TRIPLE_NAME})
         endif()
+
+        # set_xcode_property(${NAME} CODE_SIGN_IDENTITY "Apple Development" All)
+        # set_xcode_property(${NAME} DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
+
+        set_xcode_property(${TRIPLE_NAME} CODE_SIGN_IDENTITY "Apple Development" All)
+        set_xcode_property(${TRIPLE_NAME} DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
+
     else()
         add_dependencies(${PROJECT_NAME} ${TRIPLE_NAME})
     endif()

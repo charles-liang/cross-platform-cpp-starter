@@ -17,10 +17,12 @@ class IOSBuildExecutor(BuildExecutor):
         self.logger.info('Building %s', self.os)
         args = [get_cmake_executable(), 
                 '--build', str(self.build_directory), 
+                '--parallel', '%d' % os.cpu_count(),
                 '--config', profile, 
                 '--', 
                 '-allowProvisioningUpdates',
-                '-j', '%d' % os.cpu_count()]
+                # '-configuration', profile,
+                ]
         command = ' '.join(args)
         self.logger.info(f"{self.os} build command: {command}")
         exit_code = subprocess.call(command, shell=True, cwd=str(self.build_directory))
@@ -32,6 +34,7 @@ class IOSBuildExecutor(BuildExecutor):
         #     raise Exception('Oop! Something went wrong')
 
         self.logger.info('Build completed')
-        subprocess.run(['open', Path(self.source_directory, 'build', f'ios-{arch}', 'helloworld.xcodeproj')])
+        #TODO: Open the Xcode project
+        # subprocess.run(['open', Path(self.source_directory, 'build', f'ios-{arch}', 'helloworld.xcodeproj')])
         # for output_app in output_apps:
         #     self.logger.info('Output %s', Path(output_app))

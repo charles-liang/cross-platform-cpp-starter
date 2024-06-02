@@ -9,14 +9,7 @@ project(${PROJECT_NAME} VERSION ${PROJECT_VERSION})
 get_cmake_property(_variableNames VARIABLES)
 set(passed_variables "")
 
-foreach(_variableName ${_variableNames})
-    if("${_variableName}" MATCHES "IOS" OR "${_variableName}" MATCHES "ANDROID")
-        message("${_variableName} = ${${_variableName}}")
 
-        # 收集变量及其值
-        list(APPEND passed_variables "-D${_variableName}=${${_variableName}}")
-    endif()
-endforeach()
 include(ProcessorCount)
 
 # Detect the number of CPU cores
@@ -32,8 +25,8 @@ set(CMAKE_CONFIGURATION_ARGS "")
 set(CMAKE_CONFIGURATION_ARGS ${CMAKE_CONFIGURATION_ARGS} -DPREFIX_DIR=${PREFIX_DIR})
 set(CMAKE_BUILD_ARGS --parallel ${GLOBAL_NPROC})
 if(${APPLE})
-    set(CMAKE_CONFIGURATION_ARGS ${CMAKE_CONFIGURATION_ARGS} -G Xcode -DPLATFORM=${PLATFORM} -DOS=${OS} -DARCHS=${ARCHS} -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_CURRENT_SOURCE_DIR}/cmake/utils/ios.toolchain.cmake -DENABLE_BITCODE=${ENABLE_BITCODE} -DENABLE_ARC=${ENABLE_ARC})
-    set(CMAKE_BUILD_ARGS "${CMAKE_BUILD_ARGS} -- -allowProvisioningUpdates")
+    set(CMAKE_CONFIGURATION_ARGS ${CMAKE_CONFIGURATION_ARGS} -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO -G Xcode -DPLATFORM=${PLATFORM} -DOS=${OS} -DARCHS=${ARCHS} -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_CURRENT_SOURCE_DIR}/cmake/utils/ios.toolchain.cmake -DENABLE_BITCODE=${ENABLE_BITCODE} -DENABLE_ARC=${ENABLE_ARC})
+    set(CMAKE_BUILD_ARGS ${CMAKE_BUILD_ARGS} -- -allowProvisioningUpdates)
 endif()
 
 include(GNUInstallDirs)
@@ -112,10 +105,10 @@ if(APPLE)
     set_xcode_property(${PROJECT_NAME}_lib CODE_SIGN_IDENTITY "Apple Development" All)
 
     #
-    SET_XCODE_PROPERTY(${PROJECT_NAME} DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
+    set_xcode_property(${PROJECT_NAME} DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
 
     # set_xcode_property(${PROJECT_NAME}_lib CODE_SIGN_IDENTITY "Apple Development" All)
-    SET_XCODE_PROPERTY(${PROJECT_NAME}_lib DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
+    set_xcode_property(${PROJECT_NAME}_lib DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
 endif()
 
 if (MSVC)
@@ -126,6 +119,14 @@ if (MSVC)
     # endif()
 endif()
 
+
+foreach(_variableName ${_variableNames})
+    list(APPEND passed_variables "-D${_variableName}=${${_variableName}}")
+endforeach()
+
+# if (APPLE)
+#     set(passed_variables ${passed_variables}  )
+# endif()
 
 if(NOT EMSCRIPTEN)
     add_external_project_if_missing(
