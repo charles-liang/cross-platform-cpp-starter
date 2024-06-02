@@ -33,19 +33,19 @@ endmacro()
 
 macro(add_main_executable TARGET)
     set(oneValueArgs PLATFORM PUBLIC_HEADER)
-    set(multiValueArgs SOURCES)
+    set(multiValueArgs ALL_SOURCES)
     cmake_parse_arguments(APP "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     MESSAGE(STATUS "APP_PLATFORM: ${APP_PLATFORM}")
     if ("${APP_PLATFORM}" STREQUAL "IOS")
-        add_library(${TARGET}_lib SHARED ${SOURCES})
+        add_library(${TARGET}_lib SHARED ${ALL_SOURCES})
         setup_framework_properties(${TARGET}_lib ${PROJECT_VERSION})
         add_iosapp(${TARGET})
 
     elseif ("${APP_PLATFORM}" STREQUAL "ANDROID")
-        add_library(${TARGET} SHARED ${SOURCES})
+        add_library(${TARGET} SHARED ${ALL_SOURCES})
 
     else ()
-        add_executable(${TARGET} ${SOURCES})
+        add_executable(${TARGET} ${ALL_SOURCES})
     endif ()
 endmacro()
