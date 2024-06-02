@@ -1,10 +1,9 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.20.0)
 set(PROJECT_NAME helloworld)
 set(PROJECT_VERSION 1.0.0)
 set(ORGANIZATION art.hanabit)
 # set(DEVELOPMENT_TEAM $ENV{DEVELOPMENT_TEAM_ID})
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION})
-
 
 get_cmake_property(_variableNames VARIABLES)
 set(passed_variables "")
@@ -14,19 +13,32 @@ include(ProcessorCount)
 
 # Detect the number of CPU cores
 ProcessorCount(NPROC)
-set(GLOBAL_NPROC "${NPROC}")
-message(STATUS "GLOBAL_NPROC: ${GLOBAL_NPROC}")
+set(CONCURRENCY "${NPROC}")
+message(STATUS "CONCURRENCY: ${CONCURRENCY}")
 
 set(PREFIX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/build)
 set(BINARY_DIR ${PREFIX_DIR}/build)
 
+set(MAKE_CONFIGURE_ARGS "")
+set(MAKE_BUILD_ARGS "")
+set(MAKE_INSTALL_ARGS "")
 set(CMAKE_CONFIGURATION_ARGS "")
+set(CMAKE_BUILD_ARGS "")
+set(CMAKE_INSTALL_ARGS "")
 
-set(CMAKE_CONFIGURATION_ARGS ${CMAKE_CONFIGURATION_ARGS} -DPREFIX_DIR=${PREFIX_DIR})
-set(CMAKE_BUILD_ARGS --parallel ${GLOBAL_NPROC})
+set(CMAKE_CONFIGURATION_ARGS ${CMAKE_CONFIGURATION_ARGS} -DPREFIX_DIR=${PREFIX_DIR} 
+# -DCMAKE_BUILD_Type=$
+)
+set(CMAKE_BUILD_ARGS --parallel ${CONCURRENCY})
 if(${APPLE})
     set(CMAKE_CONFIGURATION_ARGS ${CMAKE_CONFIGURATION_ARGS} -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO -G Xcode -DPLATFORM=${PLATFORM} -DOS=${OS} -DARCHS=${ARCHS} -DCMAKE_TOOLCHAIN_FILE:PATH=${CMAKE_CURRENT_SOURCE_DIR}/cmake/utils/ios.toolchain.cmake -DENABLE_BITCODE=${ENABLE_BITCODE} -DENABLE_ARC=${ENABLE_ARC})
     set(CMAKE_BUILD_ARGS ${CMAKE_BUILD_ARGS} -- -allowProvisioningUpdates)
+    set(CC "clang")
+    set(CXX "clang++")
+endif()
+if (WIN32)
+    set(CC "msvc")
+    set(CXX "msvc")
 endif()
 
 include(GNUInstallDirs)
@@ -125,18 +137,11 @@ foreach(_variableName ${_variableNames})
 endforeach()
 
 # if (APPLE)
-#     set(passed_variables ${passed_variables}  )
+# set(passed_variables ${passed_variables}  )
 # endif()
-
+message(STATUS "CMAKE_COMMAND: ${${CMAKE_COMMAND}}")
+message(STATUS "MACK_COMMAND: ${MACK_COMMAND}")
 if(NOT EMSCRIPTEN)
-    add_external_project_if_missing(
-        ${PROJECT_NAME}
-        "SDL2"
-        "https://github.com/libsdl-org/SDL.git"
-        "release-2.30.3"
-        "2.30.3"
-        ${PREFIX_DIR}
-        ${BINARY_DIR}/${ARCHS}/SDL2
-    )
-    target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+    include(cmake/deps/sdl.cmake)
+    include(cmake/deps/ffmpeg.cmake)
 endif()

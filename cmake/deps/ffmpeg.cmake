@@ -1,6 +1,22 @@
 include(ExternalProject)
 
-function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERSION PREFIX_DIR BINARY_DIR)
+
+
+# EXTERNALPROJECT_ADD(
+#     ffmpeg
+
+#     # DEPENDS nasm zlib openssl opencore-amr fdkaac lame libogg opus speex libvorbis libtheora xvidcore x264 x265 aom libvpx srt freetype libass zimg intel-media-sdk libxcoder
+#     GIT_REPOSITORY https://git.ffmpeg.org/ffmpeg.git
+
+#     # URL https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.bz2
+#     URL ${CMAKE_SOURCE_DIR}/vendor/ffmpeg-5.1.2.tar.bz2
+#     PATCH_COMMAND ${CMAKE_SOURCE_DIR}/patches/patch-manager.sh ffmpeg
+#     CONFIGURE_COMMAND PATH=$ENV{PATH} PKG_CONFIG_PATH=$ENV{PKG_CONFIG_PATH} ./configure --prefix=${CMAKE_BINARY_DIR} --datadir=${CMAKE_BINARY_DIR}/etc --pkg-config-flags=--static --disable-shared --enable-static --enable-gpl --enable-version3 --enable-nonfree --enable-runtime-cpudetect --disable-doc --disable-debug --disable-ffplay --disable-indevs --disable-outdevs --extra-cflags=-I${CMAKE_BINARY_DIR}/include\ --static --extra-ldflags=-L${CMAKE_BINARY_DIR}/lib --extra-libs=-lvorbis\ -logg\ -lcrypto\ -lexpat\ -lharfbuzz\ -lfribidi\ -lz\ -ldrm\ -lpthread\ -lstdc++\ -lm\ -ldl\ -lrt --enable-openssl --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libfdk-aac --enable-libmp3lame --enable-libopus --enable-libspeex --enable-libtheora --enable-libvorbis --enable-libxvid --enable-libx264 --enable-libx265 --enable-libaom --enable-libvpx --enable-libsrt --enable-libfontconfig --enable-libfreetype --enable-libass --enable-libzimg --enable-vaapi --enable-libmfx --enable-libxcoder --enable-ni_quadra --disable-filter=hwupload_ni_logan
+#     BUILD_COMMAND PATH=$ENV{PATH} make -j${CONCURRENCY}
+#     BUILD_IN_SOURCE 1
+# )
+
+function(ffmpeg NAME GIT_REPO GIT_TAG VERSION DEPENDS)
     # Check if the directory already exists
     # Add the external project
     MESSAGE(STATUS "Add external project: ${NAME} ${OS} ${ARCHS}")
@@ -22,38 +38,32 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
         CONFIGURE_COMMAND ""
         BUILD_COMMAND ""
         INSTALL_COMMAND ""
-        BUILD_BYPRODUCTS "${SHARED_SOURCE_DIR}/CMakeLists.txt"
+        BUILD_BYPRODUCTS "${SHARED_SOURCE_DIR}/configure"
     )
 
+    message(STATUS "make: ${MAKE_PATH}")
+
+    set(FFMPEG_CONFIGURE_COMMAND ./configure --prefix=${ARCH_BUILD_DIR} --datadir=${ARCH_BUILD_DIR}/etc --cc=${CC} --cxx=${CXX} --arch=${ARCHS} --target-os=${OS} --enable-cross-compile --pkg-config-flags=--static --disable-shared --enable-static --enable-gpl --enable-version3 --enable-nonfree --enable-runtime-cpudetect --disable-doc --disable-debug --disable-ffplay --disable-indevs --disable-outdevs --extra-cflags=-I${CMAKE_BINARY_DIR}/include\ --static --extra-ldflags=-L${CMAKE_BINARY_DIR}/lib --extra-libs=-lvorbis\ -logg\ -lcrypto\ -lexpat\ -lharfbuzz\ -lfribidi\ -lz\ -ldrm\ -lpthread\ -lstdc++\ -lm\ -ldl\ -lrt --enable-openssl --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libfdk-aac --enable-libmp3lame --enable-libopus --enable-libspeex --enable-libtheora --enable-libvorbis --enable-libxvid --enable-libx264 --enable-libx265 --enable-libaom --enable-libvpx --enable-libsrt --enable-libfontconfig --enable-libfreetype --enable-libass --enable-libzimg --enable-vaapi --enable-libmfx --disable-filter=hwupload_ni_logan
+    )
+
+    message(STATUS "FFMPEG_CONFIGURE_COMMAND: ${FFMPEG_CONFIGURE_COMMAND}")
     ExternalProject_Add(
         ${TRIPLE_NAME}
-        PREFIX ${PREFIX_DIR}
         SOURCE_DIR ${SHARED_SOURCE_DIR}
-        BINARY_DIR ${ARCH_BUILD_DIR}
-        CMAKE_COMMAND ${CMAKE_COMMAND}
-        CMAKE_ARGS ${passed_variables}
-        DOWNLOAD_COMMAND ""
+        BINARY_DIR ${SHARED_SOURCE_DIR}
 
-        CONFIGURE_COMMAND ${CMAKE_COMMAND} "${SHARED_SOURCE_DIR}/CMakeLists.txt" ${CMAKE_CONFIGURATION_ARGS} -DCMAKE_BUILD_Type=Release
-        BUILD_COMMAND ${CMAKE_COMMAND} --build ${ARCH_BUILD_DIR} --config Release ${CMAKE_BUILD_ARGS}
-
-        # COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARCH_BUILD_DIR}/${CMAKE_BUILD_TYPE}/ ${PREFIX_DIR}/${ARCHS}/lib/
-        # COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARCH_BUILD_DIR}/include ${PREFIX_DIR}/${ARCHS}/include
-        INSTALL_COMMAND ${CMAKE_COMMAND} --install ${ARCH_BUILD_DIR} --prefix ${PREFIX_DIR}/${TRIPLE_NAME} --config Release
-
+        CONFIGURE_COMMAND ${FFMPEG_CONFIGURE_COMMAND}
+        BUILD_COMMAND make -j${CONCURRENCY}
+        INSTALL_COMMAND make install
         DEPENDS ${NAME}_source
     )
     MESSAGE(STATUS "Add external project: ${NAME} ${OS} ${ARCHS}")
-    
-
-   
 
     # Register the include directory and library path
     # ExternalProject_Get_Property(${NAME} PREFIX_DIR)
     set(${NAME}_INCLUDE_DIRS ${PREFIX_DIR}/${TRIPLE_NAME}/include)
-    include_directories( ${PREFIX_DIR}/${TRIPLE_NAME}/include)
+    include_directories(${PREFIX_DIR}/${TRIPLE_NAME}/include)
     set(${NAME}_LIBRARY_DIRS ${PREFIX_DIR}/${TRIPLE_NAME}/lib)
-    
 
     if(APPLE)
         if(IOS)
@@ -62,7 +72,7 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
             add_dependencies(${PROJECT_NAME}_lib ${TRIPLE_NAME})
         endif()
 
-        set_xcode_property(${NAME} CODE_SIGN_IDENTITY "Apple Development" All)
+        set_xcode_property(${TRIPLE_NAME} CODE_SIGN_IDENTITY "Apple Development" All)
         set_xcode_property(${TRIPLE_NAME} DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
 
         set_xcode_property(${TRIPLE_NAME} CODE_SIGN_IDENTITY "Apple Development" All)
@@ -71,7 +81,6 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
     else()
         add_dependencies(${PROJECT_NAME} ${TRIPLE_NAME})
     endif()
-
 
     if(WIN32)
         if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
@@ -90,9 +99,10 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
         else()
             # TODO: Fix this
             # if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-            #     set(${NAME}_LIBRARIES ${PREFIX_DIR}/${TRIPLE_NAME}/lib/lib${NAME}d.dylib)
+            # set(${NAME}_LIBRARIES ${PREFIX_DIR}/${TRIPLE_NAME}/lib/lib${NAME}d.dylib)
             # else()
             set(${NAME}_LIBRARIES ${PREFIX_DIR}/${TRIPLE_NAME}/lib/lib${NAME}.dylib)
+
             # endif()
         endif()
     elseif(${OS} STREQUAL "Android")
@@ -116,33 +126,17 @@ function(add_external_project_if_missing PROJECT_NAME NAME GIT_REPO GIT_TAG VERS
     else()
         message(FATAL_ERROR "Unsupported OS")
     endif()
-    
-    # if(NOT EXISTS "${${NAME}_LIBRARIES}")
-    #     file(GLOB LIBRARY_FILES "${PREFIX_DIR}/${TRIPLE_NAME}/lib/lib${NAME}*")
-
-    #     # Debug message to show the list of found files
-    #     message(STATUS "Found library files: ${LIBRARY_FILES}")
-
-    #     # Check if LIBRARY_FILES is not empty before sorting and getting the first element
-    #     if(LIBRARY_FILES)
-    #         list(SORT LIBRARY_FILES)
-    #         list(GET LIBRARY_FILES 0 FIRST_LIBRARY_FILE)
-
-    #         if(FIRST_LIBRARY_FILE)
-    #             add_custom_command(TARGET ${TRIPLE_NAME} POST_BUILD
-    #                 COMMAND ${CMAKE_COMMAND} -E create_symlink ${FIRST_LIBRARY_FILE} ${${NAME}_LIBRARIES}
-    #                 COMMENT "Creating symlink for ${${NAME}_LIBRARIES}"
-    #             )
-    #         else()
-    #             message(WARNING "No suitable library file found for ${NAME}")
-    #         endif()
-    #     else()
-    #         message(WARNING "No library files found for ${NAME}")
-    #     endif()
-    # endif()
 
     # Make the include directories and libraries available to the parent scope
     set(${NAME}_INCLUDE_DIRS ${${NAME}_INCLUDE_DIRS} PARENT_SCOPE)
     set(${NAME}_LIBRARY_DIRS ${${NAME}_LIBRARY_DIRS} PARENT_SCOPE)
     set(${NAME}_LIBRARIES ${${NAME}_LIBRARIES} PARENT_SCOPE)
 endfunction()
+
+ffmpeg(
+    "ffmpeg"
+    "https://git.ffmpeg.org/ffmpeg.git"
+    "n7.0.1"
+    "7.0.1"
+    "configure"
+)
