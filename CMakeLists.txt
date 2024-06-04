@@ -100,48 +100,47 @@ message(STATUS "SHARE_SOURCES: ${SHARE_SOURCES}")
 message(STATUS "ALL_SOURCES: ${ALL_SOURCES}")
 message(STATUS "ALL_PUBLIC_HEADER: ${ALL_PUBLIC_HEADER}")
 
-# if(" ${OS}" STREQUAL "IOS ")
-
-# set(SOURCES ${SOURCES} ${PUBLIC_HEADER})
-
-# elseif(" ${OS}" STREQUAL "Android ")
-# set(SOURCES ${SOURCES} src/android_wrapper.cpp)
-
-# else()
-# set(SOURCES ${SOURCES} src/main.cpp)
-# endif()
 add_main_executable(${PROJECT_NAME} PLATFORM ${OS} PUBLIC_HEADER ${ALL_PUBLIC_HEADER} ALL_SOURCES ${ALL_SOURCES})
 
 if(APPLE)
     set_xcode_property(${PROJECT_NAME} CODE_SIGN_IDENTITY "Apple Development" All)
     set_xcode_property(${PROJECT_NAME}_lib CODE_SIGN_IDENTITY "Apple Development" All)
-
-    #
     set_xcode_property(${PROJECT_NAME} DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
-
-    # set_xcode_property(${PROJECT_NAME}_lib CODE_SIGN_IDENTITY "Apple Development" All)
     set_xcode_property(${PROJECT_NAME}_lib DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID} All)
 endif()
 
 if (MSVC)
-    # if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    #     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
-    # else()
-        set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
-    # endif()
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
 endif()
 
+set(FFMPEG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/ffmpeg-${OS}-${ARCHS})
+set(SDL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/sdl-${OS}-${ARCHS})
 
-foreach(_variableName ${_variableNames})
-    list(APPEND passed_variables "-D${_variableName}=${${_variableName}}")
-endforeach()
+# 包含头文件路径
+include_directories(${FFMPEG_DIR}/include)
+include_directories(${SDL_DIR}/include)
 
-# if (APPLE)
-# set(passed_variables ${passed_variables}  )
+# 链接库文件路径
+link_directories(${FFMPEG_DIR}/lib)
+link_directories(${SDL_DIR}/lib)
+
+target_link_libraries(${PROJECT_NAME}
+    avcodec
+    avformat
+    avutil
+    swscale
+    SDL2
+    SDL2main)
+# foreach(_variableName ${_variableNames})
+#     list(APPEND passed_variables "-D${_variableName}=${${_variableName}}")
+# endforeach()
+
+# # if (APPLE)
+# # set(passed_variables ${passed_variables}  )
+# # endif()
+# message(STATUS "CMAKE_COMMAND: ${${CMAKE_COMMAND}}")
+# message(STATUS "MACK_COMMAND: ${MACK_COMMAND}")
+# if(NOT EMSCRIPTEN)
+#     include(cmake/deps/sdl.cmake)
+#     include(cmake/deps/ffmpeg.cmake)
 # endif()
-message(STATUS "CMAKE_COMMAND: ${${CMAKE_COMMAND}}")
-message(STATUS "MACK_COMMAND: ${MACK_COMMAND}")
-if(NOT EMSCRIPTEN)
-    include(cmake/deps/sdl.cmake)
-    include(cmake/deps/ffmpeg.cmake)
-endif()
